@@ -15,11 +15,7 @@ const Tab1: React.FC = () => {
         </IonToolbar>
       </IonHeader>
       <IonContent fullscreen>
-        <IonHeader collapse="condense">
-          <IonToolbar>
-            <IonTitle size="large">Tab 1</IonTitle>
-          </IonToolbar>
-        </IonHeader>
+        <p className="border border-white text-red-500">Tab 1 Hello world!</p>
         <ExploreContainer name="Tab 1 page" />
         {/* <IonButton onClick={SignIn}/> */}
         {/* <SignIn children={<IonButton>Sign in with google</IonButton>} supabaseClient={supabaseClient} dark={false} /> */}
