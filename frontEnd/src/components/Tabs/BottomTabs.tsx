@@ -13,12 +13,12 @@ import { Settings } from "lucide";
 const BottomTabs: React.FC = () => {
   return (
     <IonTabBar slot="bottom">
-      <IonTabButton tab="tab1" href="/tab1">
+      <IonTabButton tab="tab1" href="/login">
         <IonIcon aria-hidden="true" icon={home} />
         <IonLabel>Home</IonLabel>
       </IonTabButton>
 
-      <IonTabButton tab="tab2" href="/tab2">
+      <IonTabButton tab="tab2" href="/setting">
         <IonIcon aria-hidden="true" icon={timeOutline} />
         <IonLabel>History</IonLabel>
       </IonTabButton>

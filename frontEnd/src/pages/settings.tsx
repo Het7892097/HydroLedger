@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import {
   IonPage,
   IonContent,
@@ -14,8 +14,26 @@ import {
   CreditCard,
   Wallet,
 } from "lucide-react";
+import { supabaseClient } from "../services/db/supabaseClient";
+import { useAuthGuard } from "../contexts/authGaurd";
 
-const WalletDashboard: React.FC = () => {
+const SettingsPage: React.FC = () => {
+  useAuthGuard();
+  supabaseClient.auth.onAuthStateChange((event, session) => {
+    if (event === "SIGNED_IN") {
+      console.log("User signed in!", session);
+      // Now you can use session.user or store it
+    } else console.log("Usre is not signed in");
+  });
+
+  useEffect(() => {
+    (async () => {
+      const supaSession = await supabaseClient.auth.getSession();
+      const accessToken = supaSession.data.session;
+      console.log(accessToken);
+    })();
+  }, []);
+
   return (
     <IonPage>
       <IonHeader translucent={true}>
@@ -92,4 +110,4 @@ const WalletDashboard: React.FC = () => {
   );
 };
 
-export default WalletDashboard;
+export default SettingsPage;

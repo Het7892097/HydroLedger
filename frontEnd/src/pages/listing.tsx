@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from "react";
+import { useAuthGuard } from "../contexts/authGaurd";
 
 interface SaleFormData {
   intensity: string;
@@ -36,7 +37,7 @@ const InputField: React.FC<{
   </div>
 );
 
-const HydrogenSaleForm: React.FC = () => {
+const ListingPage: React.FC = () => {
   const [formData, setFormData] = useState<SaleFormData>({
     intensity: "",
     temperature: "",
@@ -75,6 +76,7 @@ const HydrogenSaleForm: React.FC = () => {
     !formData.price_per_kg ||
     !formData.seller_id;
 
+    useAuthGuard();
   return (
     <div className="min-h-screen bg-gray-900 text-white flex items-center justify-center">
       <form
@@ -195,4 +197,4 @@ const HydrogenSaleForm: React.FC = () => {
   );
 };
 
-export default HydrogenSaleForm;
+export default ListingPage;
