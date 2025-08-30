@@ -1,9 +1,10 @@
 import React, { useState } from "react";
 import { Country, State, City } from "country-state-city";
-import { ethers } from "ethers";
+import { ethers, BrowserProvider, Contract } from "ethers";
 import { useNavigate } from "react-router-dom";
 import contractABI from "../assets/contract.json";
-const CONTRACT_ADDRESS = "0xe05CA878936d86b7cdfdDB11888B090Dd91cd55f";
+import { envProvider } from "../utils/envProvider.util";
+const CONTRACT_ADDRESS = `${envProvider("VITE_CONTRACT_ADDRESS")}`;
 
 const RegistrationForm = () => {
   const navigate = useNavigate();
@@ -44,20 +45,67 @@ const RegistrationForm = () => {
         return;
       }
 
-      setStatus("⏳ Connecting wallet...");
-      const provider = new ethers.BrowserProvider(window.ethereum);
+      setStatus("⏳ Processing transaction...");
+
+      // Check current network first
+      let chainId = await window.ethereum.request({ method: "eth_chainId" });
+      console.log("Current chainId:", chainId);
+
+      // Ensure we're on Sepolia (0xaa36a7)
+      if (chainId !== "0xaa36a7") {
+        console.log("Not on Sepolia, attempting to switch...");
+        try {
+          await window.ethereum.request({
+            method: "wallet_switchEthereumChain",
+            params: [{ chainId: "0xaa36a7" }],
+          });
+          console.log("Switched to Sepolia");
+        } catch (switchError) {
+          console.log("Switch error:", switchError);
+          if (switchError.code === 4902) {
+            console.log("Sepolia not added, adding chain...");
+            await window.ethereum.request({
+              method: "wallet_addEthereumChain",
+              params: [
+                {
+                  chainId: "0xaa36a7",
+                  chainName: "Sepolia Testnet",
+                  nativeCurrency: {
+                    name: "SepoliaETH",
+                    symbol: "SepoliaETH",
+                    decimals: 18,
+                  },
+                  rpcUrls: [
+                    "https://sepolia.infura.io/v3/3e44d582b674450596206ee2f1ac59bb",
+                  ],
+                  blockExplorerUrls: ["https://sepolia.etherscan.io/"],
+                },
+              ],
+            });
+            console.log("Sepolia chain added");
+          } else {
+            throw switchError;
+          }
+        }
+      }
+
+      // Now proceed with the transaction on the correct network
+      const provider = new BrowserProvider(window.ethereum);
       await provider.send("eth_requestAccounts", []);
       const signer = await provider.getSigner();
 
-      const contract = new ethers.Contract(
-        CONTRACT_ADDRESS,
-        contractABI.abi,
-        signer
-      );
+      console.log("Creating contract instance...");
+      const contract = new Contract(CONTRACT_ADDRESS, contractABI.abi, signer);
 
+      console.log("Calling verifyConsumer...");
       const verifyTx = await contract.verifyConsumer(consumer);
+      console.log("Transaction sent:", verifyTx.hash);
+
+      setStatus("⏳ Waiting for transaction confirmation...");
       await verifyTx.wait();
+
       setStatus(`✅ Consumer verified! Tx hash: ${verifyTx.hash}`);
+
       const userDetails = {
         username: formData.username,
         company_name: formData.company_name,
@@ -73,9 +121,10 @@ const RegistrationForm = () => {
 
       localStorage.setItem("UserDetails", JSON.stringify(userDetails));
       localStorage.setItem("Step2", verifyTx.hash);
+
       navigate("/role-addition");
     } catch (err) {
-      console.error(err);
+      console.error("Error in handleSubmit:", err);
       setStatus(`❌ Error: ${err.message}`);
     }
   };

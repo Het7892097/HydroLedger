@@ -1,16 +1,19 @@
 import React, { useState } from "react";
 import { Formik, Form } from "formik";
-import { ethers } from "ethers";
+import { BrowserProvider, Contract } from "ethers";
 import contractABI from "../assets/contract.json";
 import { useNavigate } from "react-router-dom";
 import { googleLogin } from "../utils/googleAuth.util";
 import { supabaseClient } from "../utils/supabase.util";
+import { envProvider } from "../utils/envProvider.util";
+import { getUserByEmail } from "../services/user.service";
 
 const SignInPage = () => {
   const handleGoogleSignIn = () => {
     supabaseClient.auth.onAuthStateChange((event, session) => {
       if (event === "SIGNED_IN") {
         console.log("User signed in!", session);
+        // await getUserByEmail()
         // Now you can use session.user or store it
       } else console.log("Usre is not signed in");
       connectWallet();
@@ -18,12 +21,13 @@ const SignInPage = () => {
   };
   const navigate = useNavigate();
 
-  const CONTRACT_ADDRESS = "0xe05CA878936d86b7cdfdDB11888B090Dd91cd55f";
-
+  const CONTRACT_ADDRESS = `${envProvider("VITE_CONTRACT_ADDRESS")}`;
   const [status, setStatus] = useState("");
   const [walletAddress, setWalletAddress] = useState("");
 
   const connectWallet = async () => {
+    console.log("connectWallet called");
+
     if (!window.ethereum) {
       alert("Please install MetaMask!");
       return;
@@ -31,29 +35,67 @@ const SignInPage = () => {
 
     try {
       setStatus("⏳ Connecting wallet...");
-      const provider = new ethers.BrowserProvider(window.ethereum);
-      await provider.send("eth_requestAccounts", []);
+      await window.ethereum.request({ method: "eth_requestAccounts" });
+
+      const chainId = await window.ethereum.request({ method: "eth_chainId" });
+      console.log("Current chainId:", chainId);
+
+      // Ensure Sepolia
+      if (chainId !== "0xaa36a7") {
+        try {
+          await window.ethereum.request({
+            method: "wallet_switchEthereumChain",
+            params: [{ chainId: "0xaa36a7" }],
+          });
+        } catch (switchError) {
+          if (switchError.code === 4902) {
+            await window.ethereum.request({
+              method: "wallet_addEthereumChain",
+              params: [
+                {
+                  chainId: "0xaa36a7",
+                  chainName: "Sepolia Testnet",
+                  nativeCurrency: {
+                    name: "SepoliaETH",
+                    symbol: "SepoliaETH",
+                    decimals: 18,
+                  },
+                  rpcUrls: [
+                    "https://sepolia.infura.io/v3/3e44d582b674450596206ee2f1ac59bb",
+                  ],
+                  blockExplorerUrls: ["https://sepolia.etherscan.io/"],
+                },
+              ],
+            });
+          } else {
+            throw switchError;
+          }
+        }
+      }
+
+      // ✅ Ethers v6 provider
+      const provider = new BrowserProvider(window.ethereum);
       const signer = await provider.getSigner();
       const address = await signer.getAddress();
 
       setWalletAddress(address);
+      setStatus(`✅ Wallet connected: ${address}`);
+      localStorage.setItem("Step1", address);
 
-      const contractInstance = new ethers.Contract(
+      // Contract instance
+      const contractInstance = new Contract(
         CONTRACT_ADDRESS,
         contractABI.abi,
         signer
       );
-
-      setStatus(`✅ Wallet connected: ${address}`);
-      localStorage.setItem("Step1", address);
+      console.log("Contract instance:", contractInstance);
 
       navigate("/register");
     } catch (err) {
-      console.error(err);
+      console.error("Error in connectWallet:", err);
       setStatus(`❌ Wallet connection failed: ${err.message}`);
     }
   };
-
   const formatAddress = (addr) => addr.slice(0, 6) + "..." + addr.slice(-4);
 
   return (

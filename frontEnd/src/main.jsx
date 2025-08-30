@@ -3,6 +3,7 @@ import "../index.css";
 import App from "./App.jsx";
 import axios from "axios";
 
+// axiox,defaults.baseURL =""
 // axios.defaults.baseURL = "https://api.weddingclick.in/api/v1";
 
 axios.defaults.headers.common["ngrok-skip-browser-warning"] = true;

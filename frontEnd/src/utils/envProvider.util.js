@@ -1,6 +1,5 @@
-import "dotenv/config";
-
 export function envProvider(key) {
-  if (process.env[key]) return process.env[key];
-  else throw new Error(`Environment variable ${key} not found`);
+  const value = import.meta.env[key];
+  if (value) return value;
+  throw new Error(`Environment variable ${key} not found`);
 }
