@@ -17,7 +17,7 @@ const Tab1: React.FC = () => {
         </IonToolbar>
       </IonHeader>
       <IonContent fullscreen>
-        <p className="border border-white text-red-500">Tab 1 Hello world!</p>
+        <p>Tab 1 Hello world!</p>
         <ExploreContainer name="Tab 1 page" />
       </IonContent>
     </IonPage>
