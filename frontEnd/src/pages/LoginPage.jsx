@@ -3,9 +3,19 @@ import { Formik, Form } from "formik";
 import { ethers } from "ethers";
 import contractABI from "../assets/contract.json";
 import { useNavigate } from "react-router-dom";
+import { googleLogin } from "./utils/googleAuth.util";
+import { supabaseClient } from "./utils/supabase.util";
 
 const SignInPage = () => {
-  const handleGoogleSignIn = () => {};
+  const handleGoogleSignIn = () => {
+    supabaseClient.auth.onAuthStateChange((event, session) => {
+      if (event === "SIGNED_IN") {
+        console.log("User signed in!", session);
+        // Now you can use session.user or store it
+      } else console.log("Usre is not signed in");
+      connectWallet();
+    });
+  };
   const navigate = useNavigate();
 
   const CONTRACT_ADDRESS = "0xe05CA878936d86b7cdfdDB11888B090Dd91cd55f";
@@ -82,7 +92,7 @@ const SignInPage = () => {
               {/* Wallet Connect Button */}
               <button
                 type="button"
-                onClick={connectWallet}
+                onClick={handleGoogleSignIn}
                 className="w-full flex items-center justify-center space-x-3 py-3 px-4 rounded-lg border border-green-500 bg-green-500 hover:bg-green-600 text-white font-semibold transition-colors duration-200 text-sm md:text-base mb-4"
               >
                 <svg className="w-5 h-5 flex-shrink-0" viewBox="0 0 24 24">
