@@ -3,8 +3,8 @@ import { Formik, Form } from "formik";
 import { ethers } from "ethers";
 import contractABI from "../assets/contract.json";
 import { useNavigate } from "react-router-dom";
-import { googleLogin } from "./utils/googleAuth.util";
-import { supabaseClient } from "./utils/supabase.util";
+import { googleLogin } from "../utils/googleAuth.util";
+import { supabaseClient } from "../utils/supabase.util";
 
 const SignInPage = () => {
   const handleGoogleSignIn = () => {
