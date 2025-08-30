@@ -1,0 +1,7 @@
+Compile Step:
+
+cd backEnd/blockchain
+
+npx hardhat compile
+
+npx hardhat run export-artifacts.cjs
