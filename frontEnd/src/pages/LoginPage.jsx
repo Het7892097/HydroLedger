@@ -1,29 +1,53 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Formik, Form } from "formik";
-import { BrowserProvider, Contract } from "ethers";
+import { ethers } from "ethers";
 import contractABI from "../assets/contract.json";
 import { useNavigate } from "react-router-dom";
 import { googleLogin } from "../utils/googleAuth.util";
 import { supabaseClient } from "../utils/supabase.util";
-import { envProvider } from "../utils/envProvider.util";
+import { useUserContext } from "../context/userContext";
 import { getUserByEmail } from "../services/user.service";
 
 const SignInPage = () => {
-  const handleGoogleSignIn = () => {
-    supabaseClient.auth.onAuthStateChange((event, session) => {
-      if (event === "SIGNED_IN") {
-        console.log("User signed in!", session);
-        // await getUserByEmail()
-        // Now you can use session.user or store it
-      } else console.log("Usre is not signed in");
-      connectWallet();
-    });
-  };
   const navigate = useNavigate();
-
-  const CONTRACT_ADDRESS = `${envProvider("VITE_CONTRACT_ADDRESS")}`;
   const [status, setStatus] = useState("");
   const [walletAddress, setWalletAddress] = useState("");
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const { setUser } = useUserContext();
+  // Wallet logic unchanged...
+
+  useEffect(() => {
+    const { data: authListener } = supabaseClient.auth.onAuthStateChange(
+      async (event, session) => {
+        if (event === "SIGNED_IN") {
+          console.log("User signed in!", session);
+          const res = await getUserByEmail(session.user.email);
+          console.log(res, "response of fetching user by email");
+          setUser({
+            name: session.user.user_metadata.name,
+            email: session.user.email,
+            token: session.access_token,
+            role: res.role,
+            id: res.id,
+            wallet_address: res.wallet_address,
+          });
+          setIsLoggedIn(true);
+          await connectWallet(); // Trigger wallet connect after login
+        }
+      }
+    );
+    return () => {
+      authListener.subscription.unsubscribe();
+    };
+  }, []);
+
+  const handleGoogleSignIn = async () => {
+    await googleLogin();
+    // No wallet connect logic here!
+    // Only starts once user is authenticated,
+    // as ensured by the listener above.
+  };
+  const CONTRACT_ADDRESS = "0xe05CA878936d86b7cdfdDB11888B090Dd91cd55f";
 
   const connectWallet = async () => {
     console.log("connectWallet called");
@@ -113,11 +137,9 @@ const SignInPage = () => {
       <div className="flex w-full md:w-2/5 justify-center items-center bg-[#FCFCFC] px-4 font-lato">
         <Formik initialValues={{}} onSubmit={() => {}}>
           {() => (
-            <Form className="bg-white w-full max-w-sm sm:max-w-md border rounded-lg px-8 my-10 py-16 text-center">
-              <h3 className="text-xl font-bold pb-6 text-gray-700">
-                Hydro Ledger
-              </h3>
-              <h1 className="text-[28px] font-bold pb-1 tracking-tight font-sans">
+            <Form className="bg-white w-full max-w-sm sm:max-w-md rounded-lg  h-full flex flex-col justify-center text-center">
+              <h3 className="text-5xl font-bold pb-6 mb-10">Hydro Ledger</h3>
+              <h1 className="text-2xl font-bold pb-1 tracking-tight font-sans">
                 Welcome Back!
               </h1>
               <h4 className="text-[#9AA6B7] font-medium pb-7 tracking-tight text-sm md:text-lg">
@@ -134,7 +156,7 @@ const SignInPage = () => {
               {/* Wallet Connect Button */}
               <button
                 type="button"
-                onClick={handleGoogleSignIn}
+                onClick={isLoggedIn ? connectWallet : handleGoogleSignIn}
                 className="w-full flex items-center justify-center space-x-3 py-3 px-4 rounded-lg border border-green-500 bg-green-500 hover:bg-green-600 text-white font-semibold transition-colors duration-200 text-sm md:text-base mb-4"
               >
                 <svg className="w-5 h-5 flex-shrink-0" viewBox="0 0 24 24">
@@ -155,7 +177,9 @@ const SignInPage = () => {
                     d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
                   />
                 </svg>
-                <span>Continue with Google</span>
+                <span>
+                  {isLoggedIn ? "Connect Wallet " : "Continue with Google"}
+                </span>
               </button>
 
               {/* Wallet Address Display */}
@@ -170,12 +194,12 @@ const SignInPage = () => {
                 </div>
               )}
 
-              <p className="text-gray-400 font-light pt-4 text-sm">
+              {/* <p className="text-gray-400 font-light pt-4 text-sm">
                 New to Hydro Ledger?
                 <span className="text-gray-700 underline pl-1 cursor-pointer">
                   Learn more
                 </span>
-              </p>
+              </p> */}
             </Form>
           )}
         </Formik>
