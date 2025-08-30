@@ -3,16 +3,11 @@ import { useEffect } from "react";
 import { useHistory } from "react-router-dom";
 import { sessionProvider } from "../utils/supabase-utils";
 import { supabaseClient } from "../services/db/supabaseClient";
-import { AuthResponse } from "@supabase/supabase-js";
 import { useUserContext } from "./userContext";
-import { SupabaseAuthResponse, SupabaseSession } from "../types/User";
-import { useToast } from "./toastContext";
-// import { useUserStore } from "../stores/userStore";
 
 export const useAuthGuard = () => {
   const navigate = useHistory();
-  //   const setUser = useUserStore((state) => state.setUser);
-  const { setUser } = useUserContext();
+ const { setUser } = useUserContext();
   const showToast=useToast();
   useEffect(() => {
     (async () => {
@@ -22,7 +17,7 @@ export const useAuthGuard = () => {
         navigate.push("/login");
       } else {
         const { data, error } = await supabaseClient.auth.refreshSession();
-        const supabaseData = data.session as SupabaseSession;
+        const supabaseData = data.session;
         if (error || !data?.session) {
             showToast({message:"Session Expired, Please Login Again",type:"danger"});
           navigate.push("/login");
