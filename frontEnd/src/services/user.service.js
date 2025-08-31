@@ -4,15 +4,15 @@ import { sessionProvider } from "../utils/supabase.util";
 import axios from "axios";
 
 export async function getUserByEmail(email) {
-  const token=await sessionProvider();
-  if(!token) throw new Error("No session found, please login again.");
+  const token = await sessionProvider();
+  if (!token) throw new Error("No session found, please login again.");
   const response = await fetch(
-  `${envProvider("VITE_BASE_API_URL")}authenticate`,
-  {
-    headers: {"bypass-tunnel-reminder":"true","Authorization":`Bearer ${token.access_token}`},
-    method:"GET",
-  }
-);
+    `${envProvider("VITE_BASE_API_URL")}/authenticate`,
+    {
+      headers: { "bypass-tunnel-reminder": "true", "Authorization": `Bearer ${token.access_token}` },
+      method: "GET",
+    }
+  );
 
   if (response.status !== 200)
     throw new Error(

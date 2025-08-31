@@ -126,125 +126,128 @@ const HydrogenListingFormModal = () => {
   return (
     <>
       {/* Button to open modal */}
-      <div className="flex justify-center my-6">
-        <button
-          onClick={() => setIsOpen(true)}
-          className="bg-green-500 hover:bg-green-600 text-white px-6 py-3 rounded-lg font-semibold shadow-lg transition duration-300"
-        >
-          Add Hydrogen Listing
-        </button>
-      </div>
 
       {/* Modal */}
       {loading ? (
         <Loader />
       ) : (
-        isOpen && (
-          <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 p-4">
-            <div className="bg-gray-900 text-white rounded-2xl w-full max-w-3xl p-6 sm:p-8 relative overflow-y-auto max-h-[80vh] shadow-2xl no-scrollbar">
-              {/* Close button */}
-              <button
-                onClick={() => setIsOpen(false)}
-                className="absolute top-4 right-4 text-gray-400 hover:text-white text-xl"
-              >
-                ✕
-              </button>
-
-              <h2 className="text-2xl font-bold text-green-400 text-center sm:text-left mb-6">
-                Hydrogen Listing Form
-              </h2>
-
-              <form onSubmit={handleSubmit} className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <InputField
-                    label="Green Hydrogen Generated Volume (kg)"
-                    value={formData.available_volume}
-                    type="number"
-                    placeholder="1000"
-                    onChange={(val) => handleChange("available_volume", val)}
-                    required
-                  />
-                  <InputField
-                    label="Price per Kg"
-                    value={formData.price_per_unit}
-                    type="number"
-                    placeholder="500"
-                    onChange={(val) => handleChange("price_per_unit", val)}
-                    required
-                  />
-                </div>
-
-                <p className="text-sm text-gray-400">
-                  Credit Calculation:{" "}
-                  <span className="text-red-600">1 kgH2 = 1 credit</span>
-                </p>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="flex flex-col">
-                    <InputField
-                      label="Electrolyzer Efficiency (kWh/kgH2)"
-                      value={formData.el_efficiency}
-                      type="number"
-                      placeholder="50"
-                      onChange={(val) => handleChange("el_efficiency", val)}
-                      required
-                    />
-                    <p className="text-xs text-gray-400 mt-1">
-                      Total kWh consumed per kg of hydrogen produced.
-                    </p>
-                  </div>
-
-                  <div className="flex flex-col">
-                    <InputField
-                      label="Greenhouse Gas (GHG) Emissions (kgCO2e/kgH2)"
-                      value={formData.ghg}
-                      type="number"
-                      placeholder="0.1"
-                      onChange={(val) => handleChange("ghg", val)}
-                      required
-                    />
-                    <p className="text-xs text-gray-400 mt-1">
-                      Total CO₂ emission per kg of hydrogen produced.
-                    </p>
-                  </div>
-
-                  <div className="flex flex-col">
-                    <label className="text-white font-medium mb-1">
-                      Renewable Source
-                    </label>
-                    <select
-                      value={formData.renewable_source}
-                      onChange={(e) =>
-                        handleChange("renewable_source", e.target.value)
-                      }
-                      className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white focus:border-green-500 focus:ring-1 focus:ring-green-500 outline-none transition"
-                      required
-                    >
-                      <option value="">Select Source</option>
-                      <option value="Solar">Solar</option>
-                      <option value="Wind">Wind</option>
-                      <option value="Hydro">Hydro</option>
-                      <option value="Fission">Fission</option>
-                    </select>
-                    <p className="text-xs text-gray-400 mt-1">
-                      Specify the renewable energy source powering the
-                      electrolyzer.
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex justify-end">
-                  <button
-                    type="submit"
-                    className="bg-green-500 hover:bg-green-600 text-white py-3 px-6 rounded-lg font-semibold shadow-lg transition duration-300"
-                  >
-                    Submit Listing
-                  </button>
-                </div>
-              </form>
-            </div>
+        <>
+          <div className="flex justify-center my-6">
+            <button
+              onClick={() => setIsOpen(true)}
+              className="bg-green-500 hover:bg-green-600 text-white px-6 py-3 rounded-lg font-semibold shadow-lg transition duration-300"
+            >
+              Add Hydrogen Listing
+            </button>
           </div>
-        )
+
+          {isOpen && (
+            <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 p-4">
+              <div className="bg-gray-900 text-white rounded-2xl w-full max-w-3xl p-6 sm:p-8 relative overflow-y-auto max-h-[80vh] shadow-2xl no-scrollbar">
+                {/* Close button */}
+                <button
+                  onClick={() => setIsOpen(false)}
+                  className="absolute top-4 right-4 text-gray-400 hover:text-white text-xl"
+                >
+                  ✕
+                </button>
+
+                <h2 className="text-2xl font-bold text-green-400 text-center sm:text-left mb-6">
+                  Hydrogen Listing Form
+                </h2>
+
+                <form onSubmit={handleSubmit} className="space-y-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <InputField
+                      label="Green Hydrogen Generated Volume (kg)"
+                      value={formData.available_volume}
+                      type="number"
+                      placeholder="1000"
+                      onChange={(val) => handleChange("available_volume", val)}
+                      required
+                    />
+                    <InputField
+                      label="Price per Kg"
+                      value={formData.price_per_unit}
+                      type="number"
+                      placeholder="500"
+                      onChange={(val) => handleChange("price_per_unit", val)}
+                      required
+                    />
+                  </div>
+
+                  <p className="text-sm text-gray-400">
+                    Credit Calculation:{" "}
+                    <span className="text-red-600">1 kgH2 = 1 credit</span>
+                  </p>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="flex flex-col">
+                      <InputField
+                        label="Electrolyzer Efficiency (kWh/kgH2)"
+                        value={formData.el_efficiency}
+                        type="number"
+                        placeholder="50"
+                        onChange={(val) => handleChange("el_efficiency", val)}
+                        required
+                      />
+                      <p className="text-xs text-gray-400 mt-1">
+                        Total kWh consumed per kg of hydrogen produced.
+                      </p>
+                    </div>
+
+                    <div className="flex flex-col">
+                      <InputField
+                        label="Greenhouse Gas (GHG) Emissions (kgCO2e/kgH2)"
+                        value={formData.ghg}
+                        type="number"
+                        placeholder="0.1"
+                        onChange={(val) => handleChange("ghg", val)}
+                        required
+                      />
+                      <p className="text-xs text-gray-400 mt-1">
+                        Total CO₂ emission per kg of hydrogen produced.
+                      </p>
+                    </div>
+
+                    <div className="flex flex-col">
+                      <label className="text-white font-medium mb-1">
+                        Renewable Source
+                      </label>
+                      <select
+                        value={formData.renewable_source}
+                        onChange={(e) =>
+                          handleChange("renewable_source", e.target.value)
+                        }
+                        className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white focus:border-green-500 focus:ring-1 focus:ring-green-500 outline-none transition"
+                        required
+                      >
+                        <option value="">Select Source</option>
+                        <option value="Solar">Solar</option>
+                        <option value="Wind">Wind</option>
+                        <option value="Hydro">Hydro</option>
+                        <option value="Fission">Fission</option>
+                      </select>
+                      <p className="text-xs text-gray-400 mt-1">
+                        Specify the renewable energy source powering the
+                        electrolyzer.
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex justify-end">
+                    <button
+                      type="submit"
+                      className="bg-green-500 hover:bg-green-600 text-white py-3 px-6 rounded-lg font-semibold shadow-lg transition duration-300"
+                    >
+                      Submit Listing
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          )}
+        </>
       )}
     </>
   );

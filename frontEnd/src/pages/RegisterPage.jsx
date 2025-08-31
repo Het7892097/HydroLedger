@@ -106,20 +106,22 @@ const RegistrationForm = () => {
 
       setStatus(`✅ Consumer verified! Tx hash: ${verifyTx.hash}`);
 
-      const userDetails = {
+      const metaData = {
         username: formData.username,
-        company_name: formData.company_name,
-        address: formData.address,
         city: selectedCity,
         state: selectedState,
         country: selectedCountry,
         pincode: formData.pincode,
-        purpose: formData.purpose,
-        consumer,
-        verifyTxHash: verifyTx.hash,
+        address: formData.address,
       };
 
-      localStorage.setItem("UserDetails", JSON.stringify(userDetails));
+      const userDetails = {
+        name: formData.company_name,
+        description: formData.purpose,
+        meta_data: JSON.stringify(metaData),
+      };
+
+      localStorage.setItem("CompanyDetails", JSON.stringify(userDetails));
       localStorage.setItem("Step2", verifyTx.hash);
 
       navigate("/role-addition");

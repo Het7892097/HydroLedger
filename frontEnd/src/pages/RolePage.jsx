@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import contractABI from "../assets/contract.json";
 import { envProvider } from "../utils/envProvider.util";
 import { BrowserProvider, Contract, ethers } from "ethers";
+import { createCompanyAPI, createUserAPI } from "../services/profile_service";
+import { useNavigate } from "react-router-dom";
 
 const CONTRACT_ADDRESS = `${envProvider("VITE_CONTRACT_ADDRESS")}`;
 
@@ -10,7 +12,7 @@ const RoleWalletForm = () => {
   const [status, setStatus] = useState("");
   const [balance, setBalance] = useState("");
   const [role, setRole] = useState("");
-
+  const navigate = useNavigate();
   const roles = ["producer", "consumer", "authority"];
 
   const connectWallet = async (selectedRole) => {
@@ -82,17 +84,43 @@ const RoleWalletForm = () => {
       // 5. Initialize contract
       const contract = new Contract(CONTRACT_ADDRESS, contractABI.abi, signer);
 
+      const UserDetails = localStorage.getItem("UserProfileDetails");
+      let formattedData = JSON.parse(UserDetails);
+
+      formattedData = {
+        ...formattedData,
+        role: selectedRole,
+      };
+
+      const userid = formattedData?.id;
+
+      localStorage.setItem("UserProfileDetails", JSON.stringify(formattedData));
+
+      const CompanyDetails = localStorage.getItem(CompanyDetails);
+      let jsonData = JSON.parse(CompanyDetails);
+
+      jsonData = {
+        ...jsonData,
+        id: userid,
+      };
+      localStorage.setItem("CompanyDetails", JSON.stringify(jsonData));
+
+      await createUserAPI(formattedData);
+      await createCompanyAPI(jsonData);
+
       // 6. Role-based actions
       switch (selectedRole) {
         case "producer": {
           const tx = await contract.addProducer(address);
           await tx.wait();
+          navigate("/admin");
           setStatus(`✅ Producer added! Tx hash: ${tx.hash}`);
           break;
         }
         case "consumer": {
           const tx = await contract.addConsumer(address);
           await tx.wait();
+          navigate("/admin");
           setStatus(`✅ Consumer added! Tx hash: ${tx.hash}`);
           break;
         }
@@ -100,6 +128,7 @@ const RoleWalletForm = () => {
           try {
             const isProd = await contract.addVerifier(address);
             await isProd.wait();
+            navigate("/admin");
             setStatus(`✅ Consumer added! Tx hash: ${isProd.hash}`);
           } catch (contractError) {
             console.error("Contract read error:", contractError);
@@ -107,9 +136,6 @@ const RoleWalletForm = () => {
           }
           break;
         }
-        case "admin":
-          setStatus(`✅ Admin wallet connected: ${address}`);
-          break;
         default:
           setStatus(`✅ Wallet connected: ${address}`);
       }
