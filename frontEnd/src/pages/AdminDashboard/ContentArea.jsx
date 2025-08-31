@@ -1,5 +1,28 @@
 import HydrogenListingForm from "./ListingForm";
 import Profile from "./ProfilePage";
+import History from "./History";
+import {
+  DetailedHistory,
+  getTransactionsByWalletAPI,
+} from "../../services/producer.service";
+
+const UserDetails = localStorage.getItem("UserProfileDetails");
+let formattedData = JSON.parse(UserDetails);
+
+const columns = [
+  { key: "reciever_company_name", label: "Reciever" },
+  { key: "credits", label: "Credits" },
+  { key: "status", label: "Status" },
+  { key: "price_per_unit", label: "Price/Unit" },
+  { key: "el_efficiency", label: "Efficiency" },
+  { key: "ghg", label: "GHG" },
+  { key: "renewable_source", label: "Source" },
+];
+
+const tabs = [
+  { id: "Pending", name: "Pending" },
+  { id: "Verified", name: "Verified" },
+];
 
 const ContentArea = ({ activeTab }) => {
   const renderContent = () => {
@@ -7,7 +30,17 @@ const ContentArea = ({ activeTab }) => {
       case "profile":
         return <Profile />;
       case "history":
-        return <div>History Content</div>;
+        return (
+          <div>
+            <History
+              columns={columns}
+              fetchTransactionsAPI={DetailedHistory(
+                formattedData?.wallet_address
+              )}
+              tabOptions={tabs}
+            />
+          </div>
+        );
       case "listing":
         return (
           <div>

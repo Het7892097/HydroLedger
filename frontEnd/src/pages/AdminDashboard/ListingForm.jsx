@@ -1,14 +1,20 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import InputField from "../../components/Input";
 import contractABI from "../../assets/contract.json";
 import { BrowserProvider, Contract } from "ethers";
 import { envProvider } from "../../utils/envProvider.util";
 import { createTransaction } from "../../services/user.service";
-import { createTransactionAPI } from "../../services/producer.service";
+import {
+  createTransactionAPI,
+  getPendingTransactionsAPI,
+} from "../../services/producer.service";
 import Loader from "../../components/Loading";
+import Table from "../../components/Table";
+import Tabs from "../../components/Tabs";
 
 const HydrogenListingFormModal = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState("Pending");
   const [loading, setloading] = useState(false);
   const [formData, setFormData] = useState({
     available_volume: "",
@@ -21,6 +27,55 @@ const HydrogenListingFormModal = () => {
   const handleChange = (name, value) => {
     setFormData({ ...formData, [name]: value });
   };
+
+  const tabs = [
+    { id: "Pending", name: "Pending" },
+    { id: "Verified", name: "Verified" },
+  ];
+
+  const columns = [
+    { key: "credits", label: "Credits" },
+    { key: "status", label: "Status" },
+    { key: "price_per_unit", label: "Price/Unit" },
+    { key: "el_efficiency", label: "Efficiency" },
+    { key: "ghg", label: "GHG" },
+    { key: "renewable_source", label: "Source" },
+  ];
+
+  const [transactions, setTransactions] = useState([]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await getPendingTransactionsAPI();
+
+        // Transform rows
+        const formatted = response.map((tx) => {
+          let meta = {};
+          try {
+            meta = tx.metadata ? JSON.parse(tx.metadata) : {};
+          } catch (e) {
+            console.error("Invalid metadata", e);
+          }
+
+          return {
+            ...tx,
+            ...meta,
+          };
+        });
+
+        setTransactions(formatted);
+      } catch (err) {
+        console.error("Error fetching transactions", err);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  const filteredTransactions = transactions.filter(
+    (tx) => tx.status === activeTab
+  );
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -101,7 +156,7 @@ const HydrogenListingFormModal = () => {
         sender_wallet_address: address,
         receiver_wallet_address: CONTRACT_ADDRESS,
         credit_id: tx2Int,
-        credits: creditAmount,
+        credits: Number(creditAmount),
         metadata: metadata,
       };
 
@@ -132,17 +187,44 @@ const HydrogenListingFormModal = () => {
         <Loader />
       ) : (
         <>
-          <div className="flex justify-center my-6">
-            <button
-              onClick={() => setIsOpen(true)}
-              className="bg-green-500 hover:bg-green-600 text-white px-6 py-3 rounded-lg font-semibold shadow-lg transition duration-300"
-            >
-              Add Hydrogen Listing
-            </button>
+          <div className="container mx-auto p-2">
+            {/* Button Section */}
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-6">
+              <p className="text-2xl font-semibold">Listing Management</p>
+
+              <button
+                onClick={() => setIsOpen(true)}
+                className="bg-green-500 hover:bg-green-600 text-white px-6 py-3 rounded-lg font-semibold shadow-lg transition duration-300 w-full sm:w-auto"
+              >
+                Add Hydrogen Listing
+              </button>
+            </div>
+
+            {/* Tabs for filtering */}
+            <div className="flex gap-4 mb-4 overflow-x-auto no-scrollbar p-1">
+              {tabs.map((tab) => (
+                <Tabs
+                  key={tab.id}
+                  tab={tab}
+                  activeTab={activeTab}
+                  handleTabClick={setActiveTab} // clicking sets active tab
+                />
+              ))}
+            </div>
+
+            {/* Table Section */}
+            <div className="bg-white border border-primary rounded-xl p-4 sm:p-6 overflow-x-auto">
+              <Table
+                columns={columns}
+                data={filteredTransactions}
+                title={`${activeTab} Transactions`}
+                showtitle={true}
+              />
+            </div>
           </div>
 
           {isOpen && (
-            <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 p-4">
+            <div className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50 p-4">
               <div className="bg-gray-900 text-white rounded-2xl w-full max-w-3xl p-6 sm:p-8 relative overflow-y-auto max-h-[80vh] shadow-2xl no-scrollbar">
                 {/* Close button */}
                 <button
