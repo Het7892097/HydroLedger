@@ -38,6 +38,7 @@ const SignInPage = () => {
           if (res?.wallet_address && res?.wallet_address != null) {
             localStorage.setItem("SkipProfile", true);
           } else {
+            localStorage.setItem("SkipProfile", false);
             const userObject = {
               name: session.user.user_metadata.name,
               email: session.user.email,
@@ -149,7 +150,7 @@ const SignInPage = () => {
       console.log("Contract instance:", contractInstance);
 
       const skipProfile = localStorage.getItem("SkipProfile");
-      if (skipProfile) {
+      if (skipProfile === true) {
         navigate("/admin");
       } else {
         navigate("/register");

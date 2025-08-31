@@ -96,7 +96,7 @@ const RoleWalletForm = () => {
 
       localStorage.setItem("UserProfileDetails", JSON.stringify(formattedData));
 
-      const CompanyDetails = localStorage.getItem(CompanyDetails);
+      const CompanyDetails = localStorage.getItem("CompanyDetails");
       let jsonData = JSON.parse(CompanyDetails);
 
       jsonData = {

@@ -14,8 +14,8 @@ export async function createUserAPI(userData) {
         },
         body: JSON.stringify({
             id: userData.id,
-            email_id: userData.email_id,
-            full_name: userData.full_name,
+            email_id: userData.email,
+            full_name: userData.name,
             wallet_address: userData.wallet_address,
             role: userData.role,
             created_at: Date.now(),
@@ -41,11 +41,11 @@ export async function createCompanyAPI(companyData) {
             "bypass-tunnel-reminder": true,
         },
         body: JSON.stringify({
-            id: companyData.id,
+            user_id: companyData.id,
             description: companyData.description,
             name: companyData.name,
             created_at: Date.now(),
-            meta_data: companyData.meta_data || {},
+            metadata: companyData.meta_data || {},
         }),
     });
 
