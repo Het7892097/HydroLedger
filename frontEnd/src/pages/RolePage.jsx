@@ -1,23 +1,25 @@
 import React, { useState } from "react";
-import { ethers } from "ethers";
 import contractABI from "../assets/contract.json";
+import { envProvider } from "../utils/envProvider.util";
+import { BrowserProvider, Contract, ethers } from "ethers";
+import { createCompanyAPI, createUserAPI } from "../services/profile_service";
+import { useNavigate } from "react-router-dom";
 
-const CONTRACT_ADDRESS = "0xe05CA878936d86b7cdfdDB11888B090Dd91cd55f";
+const CONTRACT_ADDRESS = `${envProvider("VITE_CONTRACT_ADDRESS")}`;
 
 const RoleWalletForm = () => {
   const [walletAddress, setWalletAddress] = useState(null);
   const [status, setStatus] = useState("");
   const [balance, setBalance] = useState("");
   const [role, setRole] = useState("");
-
-  const roles = ["admin", "producer", "consumer", "authority"];
+  const navigate = useNavigate();
+  const roles = ["producer", "consumer", "authority"];
 
   const connectWallet = async (selectedRole) => {
     if (!selectedRole) {
       alert("Please select a role first!");
       return;
     }
-
     if (!window.ethereum) {
       alert("Please install MetaMask!");
       return;
@@ -25,52 +27,120 @@ const RoleWalletForm = () => {
 
     try {
       setStatus("⏳ Connecting wallet...");
-      const provider = new ethers.BrowserProvider(window.ethereum);
+
+      // 1. Check current network
+      let chainId = await window.ethereum.request({ method: "eth_chainId" });
+      console.log("Current chainId:", chainId);
+
+      // 2. Ensure we're on Sepolia (0xaa36a7)
+      if (chainId !== "0xaa36a7") {
+        try {
+          await window.ethereum.request({
+            method: "wallet_switchEthereumChain",
+            params: [{ chainId: "0xaa36a7" }],
+          });
+          console.log("Switched to Sepolia");
+        } catch (switchError) {
+          if (switchError.code === 4902) {
+            await window.ethereum.request({
+              method: "wallet_addEthereumChain",
+              params: [
+                {
+                  chainId: "0xaa36a7",
+                  chainName: "Sepolia Testnet",
+                  nativeCurrency: {
+                    name: "SepoliaETH",
+                    symbol: "SepoliaETH",
+                    decimals: 18,
+                  },
+                  rpcUrls: [
+                    "https://sepolia.infura.io/v3/3e44d582b674450596206ee2f1ac59bb",
+                  ],
+                  blockExplorerUrls: ["https://sepolia.etherscan.io/"],
+                },
+              ],
+            });
+            console.log("Sepolia chain added");
+          } else {
+            throw switchError;
+          }
+        }
+        chainId = await window.ethereum.request({ method: "eth_chainId" });
+        console.log("Updated chainId:", chainId);
+      }
+
+      // 3. Create provider and signer (ethers v6)
+      const provider = new BrowserProvider(window.ethereum);
       await provider.send("eth_requestAccounts", []);
       const signer = await provider.getSigner();
       const address = await signer.getAddress();
 
       setWalletAddress(address);
 
-      // Fetch balance
+      // 4. Fetch balance (ethers v6)
       const rawBalance = await provider.getBalance(address);
       setBalance(parseFloat(ethers.formatEther(rawBalance)).toFixed(4));
 
-      // Initialize contract
-      const contract = new ethers.Contract(
-        CONTRACT_ADDRESS,
-        contractABI.abi,
-        signer
-      );
+      // 5. Initialize contract
+      const contract = new Contract(CONTRACT_ADDRESS, contractABI.abi, signer);
 
-      // Role-based actions (switch)
+      const UserDetails = localStorage.getItem("UserProfileDetails");
+      let formattedData = JSON.parse(UserDetails);
+
+      formattedData = {
+        ...formattedData,
+        role: selectedRole,
+      };
+
+      const userid = formattedData?.id;
+
+      localStorage.setItem("UserProfileDetails", JSON.stringify(formattedData));
+
+      const CompanyDetails = localStorage.getItem("CompanyDetails");
+      let jsonData = JSON.parse(CompanyDetails);
+
+      jsonData = {
+        ...jsonData,
+        id: userid,
+      };
+      localStorage.setItem("CompanyDetails", JSON.stringify(jsonData));
+
+      await createUserAPI(formattedData);
+      await createCompanyAPI(jsonData);
+
+      // 6. Role-based actions
       switch (selectedRole) {
         case "producer": {
           const tx = await contract.addProducer(address);
           await tx.wait();
+          navigate("/admin");
           setStatus(`✅ Producer added! Tx hash: ${tx.hash}`);
           break;
         }
         case "consumer": {
           const tx = await contract.addConsumer(address);
           await tx.wait();
+          navigate("/admin");
           setStatus(`✅ Consumer added! Tx hash: ${tx.hash}`);
           break;
         }
         case "authority": {
-          const tx = await contract.addVerifier(address);
-          await tx.wait();
-          setStatus(`✅ Verifier added! Tx hash: ${tx.hash}`);
+          try {
+            const isProd = await contract.addVerifier(address);
+            await isProd.wait();
+            navigate("/admin");
+            setStatus(`✅ Consumer added! Tx hash: ${isProd.hash}`);
+          } catch (contractError) {
+            console.error("Contract read error:", contractError);
+            setStatus(`❌ Contract read error: ${contractError.message}`);
+          }
           break;
         }
-        case "admin":
-          setStatus(`✅ Admin wallet connected: ${address}`);
-          break;
         default:
           setStatus(`✅ Wallet connected: ${address}`);
       }
     } catch (err) {
-      console.error(err);
+      console.error("Error in connectWallet:", err);
       setStatus(`❌ Wallet connection failed: ${err.message}`);
     }
   };
