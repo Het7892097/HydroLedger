@@ -1,13 +1,17 @@
 import HydrogenListingForm from "./ListingForm";
 import Profile from "./ProfilePage";
+import { useEffect } from "react";
+import TransactionHistory from "./TransactionHistory";
 
 const ContentArea = ({ activeTab }) => {
+
   const renderContent = () => {
+
     switch (activeTab) {
       case "profile":
         return <Profile />;
       case "history":
-        return <div>History Content</div>;
+        return <TransactionHistory />;
       case "listing":
         return (
           <div>

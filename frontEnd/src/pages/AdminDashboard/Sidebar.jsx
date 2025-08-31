@@ -10,11 +10,14 @@ import {
 } from "lucide-react";
 import ContentArea from "./ContentArea";
 import Navbar from "./Navbar";
+import { useUserContext } from "../../context/userContext";
+import { useAuthGuard } from "../../context/authGuardContext";
 
 const AdminDashboard = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("profile");
-
+  const { userData } = useUserContext();
+  useAuthGuard();
   const navigationItems = [
     { id: "profile", label: "Profile", icon: User },
     { id: "listing", label: "Listing", icon: List },
@@ -22,7 +25,6 @@ const AdminDashboard = () => {
     // { id: "add-renewable", label: "Add Renewable Energy", icon: Plus },
     // { id: "status-tracking", label: "Status Tracking", icon: Activity },
   ];
-
   const Sidebar = () => (
     <div
       className={`fixed inset-y-0 left-0 z-50 w-64 transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0 ${
@@ -83,7 +85,7 @@ const AdminDashboard = () => {
             <div className="flex-1 min-w-0">
               <p className="text-white font-medium truncate">Admin User</p>
               <p className="text-white/60 text-sm truncate">
-                admin@ecodash.com
+                {userData?.email}
               </p>
             </div>
             <ChevronDown className="w-4 h-4 text-white/60" />

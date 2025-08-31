@@ -179,10 +179,10 @@ const SignInPage = () => {
           />
 
           {/* Right side form */}
-          <div className="flex w-full md:w-2/5 justify-center items-center bg-[#FCFCFC] px-4 font-lato">
+          <div className="flex flex-1 justify-center items-center bg-[#FCFCFC] px-4 font-lato">
             <Formik initialValues={{}} onSubmit={() => {}}>
               {() => (
-                <Form className="bg-white w-full max-w-sm sm:max-w-md rounded-lg  h-full flex flex-col justify-center text-center">
+                <Form className="bg-white w-full rounded-lg  h-full flex flex-col justify-center text-center">
                   <h3 className="text-5xl font-bold pb-6 mb-10">
                     Hydro Ledger
                   </h3>

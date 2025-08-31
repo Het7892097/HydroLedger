@@ -9,7 +9,7 @@ export async function getUserByEmail(email) {
   const response = await fetch(
     `${envProvider("VITE_BASE_API_URL")}/authenticate`,
     {
-      headers: { "bypass-tunnel-reminder": "true", "Authorization": `Bearer ${token.access_token}` },
+      headers: { "bypass-tunnel-reminder": "true",'ngrok-skip-browser-warning': 'true', "Authorization": `Bearer ${token.access_token}` },
       method: "GET",
     }
   );

@@ -1,4 +1,6 @@
 import { Menu, Bell, Search, Settings, LogOut } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { supabaseClient } from "../../utils/supabase.util";
 
 const navigationItems = [
   { id: "profile", label: "Profile" },
@@ -9,6 +11,12 @@ const navigationItems = [
 ];
 
 const Navbar = ({ activeTab, setActiveTab, sidebarOpen, setSidebarOpen }) => {
+  const router=useNavigate();
+  function handleLogout(){
+    supabaseClient.auth.signOut();
+    localStorage.clear();
+    router("/");
+  }
   return (
     <header className="bg-white border-b border-gray-200 shadow-sm">
       <div className="flex items-center justify-between h-16 px-4 lg:px-6">
@@ -34,7 +42,7 @@ const Navbar = ({ activeTab, setActiveTab, sidebarOpen, setSidebarOpen }) => {
             <Settings className="w-5 h-5" />
           </button>
 
-          <button className="p-2 text-gray-600 hover:text-red-500 transition-colors">
+          <button onClick={handleLogout} className="p-2 text-gray-600 hover:text-red-500 transition-colors">
             <LogOut className="w-5 h-5" />
           </button>
         </div>

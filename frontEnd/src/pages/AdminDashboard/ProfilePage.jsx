@@ -1,18 +1,13 @@
-import React, { useEffect, useState } from "react"; 
-
+import React, { use, useEffect, useState } from "react";
+import { useUserContext } from "../../context/userContext";
 
 const Profile = () => {
-  const [userDetails, setUserDetails] = useState(null);
-
+  // const [userData
+  const { userData } = useUserContext();
   useEffect(() => {
-    const storedDetails = localStorage.getItem("UserDetails");
-    if (storedDetails) {
-      setUserDetails(JSON.parse(storedDetails));
-    }
-  }, []);
-
-  if (!userDetails) {
-    
+    console.log(userData);
+  }, [userData]);
+  if (!userData) {
     return (
       <div className="p-6 text-center text-gray-500">
         No user details found.
@@ -27,45 +22,49 @@ const Profile = () => {
       </h2>
 
       <div className="space-y-3">
-        <div className="flex justify-between border-b pb-2">
-          <span className="font-semibold text-gray-600">Username:</span>
-          <span className="text-gray-800">{userDetails.username}</span>
+        <div className="flex justify-start border-b pb-2">
+          <span className="font-semibold w-1/4 text-gray-600">Username:</span>
+          <span className="text-gray-800">{userData.name}</span>
         </div>
 
-        <div className="flex justify-between border-b pb-2">
+        {/* <div className="flex justify-between border-b pb-2">
           <span className="font-semibold text-gray-600">Company:</span>
-          <span className="text-gray-800">{userDetails.company_name}</span>
-        </div>
+          <span className="text-gray-800">{userData.company_name}</span>
+        </div> */}
 
-        <div className="flex justify-between border-b pb-2">
+        {/* <div className="flex justify-between border-b pb-2">
           <span className="font-semibold text-gray-600">Address:</span>
-          <span className="text-gray-800">{userDetails.address}</span>
-        </div>
+          <span className="text-gray-800">{userData
+.address}</span>
+        </div> */}
 
-        <div className="flex justify-between border-b pb-2">
+        {/* <div className="flex justify-between border-b pb-2">
           <span className="font-semibold text-gray-600">City:</span>
-          <span className="text-gray-800">{userDetails.city}</span>
+          <span className="text-gray-800">{userData
+.city}</span>
+        </div> */}
+
+        <div className="flex justify-start border-b pb-2">
+          <span className="font-semibold w-1/4 text-gray-600">email:</span>
+          <span className="text-gray-800">{userData.email}</span>
         </div>
 
-        <div className="flex justify-between border-b pb-2">
-          <span className="font-semibold text-gray-600">State:</span>
-          <span className="text-gray-800">{userDetails.state}</span>
+        <div className="flex justify-start border-b pb-2">
+          <span className="font-semibold w-1/4 text-gray-600">Role:</span>
+          <span className="text-gray-800">{userData.role}</span>
         </div>
 
-        <div className="flex justify-between border-b pb-2">
-          <span className="font-semibold text-gray-600">Country:</span>
-          <span className="text-gray-800">{userDetails.country}</span>
-        </div>
-
-        <div className="flex justify-between border-b pb-2">
+        {/* <div className="flex justify-between border-b pb-2">
           <span className="font-semibold text-gray-600">Pincode:</span>
-          <span className="text-gray-800">{userDetails.pincode}</span>
-        </div>
+          <span className="text-gray-800">{userData
+.pincode}</span>
+        </div> */}
 
-        <div className="flex justify-between">
+        {/* <div className="flex justify-between">
           <span className="font-semibold text-gray-600">Purpose:</span>
-          <span className="text-gray-800">{userDetails.purpose}</span>
-        </div>
+          <span className="text-gray-800">{userData
+.purpose}</span>
+        </div> */}
       </div>
     </div>
   );

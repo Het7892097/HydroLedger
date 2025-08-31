@@ -104,8 +104,8 @@ const RoleWalletForm = () => {
         id: userid,
       };
       localStorage.setItem("CompanyDetails", JSON.stringify(jsonData));
-
-      await createUserAPI(formattedData);
+      console.log("Final User Data:", formattedData);
+      await createUserAPI({...formattedData});
       await createCompanyAPI(jsonData);
 
       // 6. Role-based actions
@@ -154,7 +154,8 @@ const RoleWalletForm = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#0b0f19] flex items-center justify-center p-4">
+    <div className="min-h-screen bg-[#0b0f19] flex gap-10 flex-col items-center justify-center p-4">
+      <h2 className="text-white text-4xl">Please keep your metamask extension open</h2>
       <div className="w-full max-w-md bg-[#1c2233] text-white rounded-2xl shadow-lg p-6 space-y-6">
         {/* Avatar + Title */}
         <div className="flex flex-col items-center">
