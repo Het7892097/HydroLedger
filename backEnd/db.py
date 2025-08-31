@@ -1,8 +1,9 @@
 from datetime import datetime
-from supabase_client import supabase
+from supabase import create_client, Client
 import os
 from dotenv import load_dotenv
 import requests
+import supabase
 import json
 
 load_dotenv()
@@ -10,7 +11,10 @@ load_dotenv()
 class Database:
 
     def __init__(self):
-        self.supabase = supabase
+        self.supabase_url = os.getenv("SUPABASE_URL")
+        self.supabase_key = os.getenv("SUPABASE_KEY")
+
+        self.supabase: Client = create_client(self.supabase_url, self.supabase_key)
 
     # def update_user(self, uuid: str, wallet_address: str, role: str):
     #     user = self.get_user_by_uuid(uuid)
