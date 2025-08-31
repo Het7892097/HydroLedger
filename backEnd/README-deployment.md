@@ -18,9 +18,9 @@ git push origin main
 4. Select the `HydroLedger` repository
 5. Configure the service:
    - **Name**: `hydroledger-backend`
-   - **Root Directory**: `backEnd/python`
+   - **Root Directory**: `backEnd`
    - **Environment**: `Python 3`
-   - **Build Command**: `pip install -r requirements.txt`
+   - **Build Command**: `pip install --upgrade pip && pip install -r requirements.txt`
    - **Start Command**: `python start.py`
 
 ### 3. Environment Variables

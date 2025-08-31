@@ -3,6 +3,7 @@ services:
     name: hydroledger-backend
     env: python
     plan: free
+    rootDir: backEnd
     buildCommand: pip install --upgrade pip && pip install -r requirements.txt
     startCommand: python start.py
     envVars:
