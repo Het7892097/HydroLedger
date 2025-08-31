@@ -1,4 +1,5 @@
 import { Menu, Bell, Search, Settings, LogOut } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const navigationItems = [
   { id: "profile", label: "Profile" },
@@ -9,6 +10,7 @@ const navigationItems = [
 ];
 
 const Navbar = ({ activeTab, setActiveTab, sidebarOpen, setSidebarOpen }) => {
+  const navigate = useNavigate();
   return (
     <header className="bg-white border-b border-gray-200 shadow-sm">
       <div className="flex items-center justify-between h-16 px-4 lg:px-6">
@@ -30,11 +32,13 @@ const Navbar = ({ activeTab, setActiveTab, sidebarOpen, setSidebarOpen }) => {
 
         {/* Search and Actions */}
         <div className="flex items-center space-x-4">
-          <button className="p-2 text-gray-600 hover:text-primary transition-colors">
-            <Settings className="w-5 h-5" />
-          </button>
-
-          <button className="p-2 text-gray-600 hover:text-red-500 transition-colors">
+          <button
+            className="p-2 text-gray-600 hover:text-red-500 transition-colors"
+            onClick={() => {
+              localStorage.clear();
+              navigate("/");
+            }}
+          >
             <LogOut className="w-5 h-5" />
           </button>
         </div>
