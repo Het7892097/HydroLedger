@@ -2,7 +2,7 @@ from http.client import HTTPException
 import os
 from datetime import datetime, timezone
 from dotenv import load_dotenv
-from supabase import create_client, Client
+from supabase_client import supabase
 
 from models import UserDB
 
@@ -10,15 +10,6 @@ from models import UserDB
 # ENV + Supabase Setup
 # -------------------------
 load_dotenv()
-
-SUPABASE_URL = os.getenv("SUPABASE_URL")
-SUPABASE_KEY = os.getenv("SUPABASE_KEY")
-
-if not SUPABASE_URL or not SUPABASE_KEY:
-    raise RuntimeError("❌ Supabase credentials not set in .env")
-
-supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
-
 
 # -------------------------
 # Auth Helpers
