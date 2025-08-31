@@ -180,8 +180,13 @@ def get_combined_transactions(wallet_address: str):
 # 6. Get Pending Transactions (for certifiers)
 # ---------------------------
 @app.get("/transactions-pending", response_model=List[TransactionDB])
-def get_pending_transactions():
-    result = database.supabase.table("transactions").select("*").eq("status", "Pending").execute()
+def get_pending_transactions(wallet_address: str):
+    result = (
+        database.supabase.table("transactions")
+        .select("*")
+        .eq("sender_wallet_address", wallet_address)
+        .execute()
+    )
     return result.data if result.data else []
 
 # ---------------------------
