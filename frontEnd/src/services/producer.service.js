@@ -91,6 +91,24 @@ export async function getTransactionsByWalletAPI(wallet_address) {
     }
 
     return await response.json();
+} 
+
+export async function DetailedHistory(wallet_address) {
+    const response = await fetch(
+        `${envProvider("VITE_BASE_API_URL")}/get-combined-transactions-wallet?wallet_address=${wallet_address}`,
+        {
+            method: "GET",
+            headers: await getReqHeaders(),
+        }
+    );
+
+    if (!response.ok) {
+        throw new Error(
+            `Error fetching transactions by wallet: status ${response.status}`
+        );
+    }
+
+    return await response.json();
 }
 
 // ----------------------

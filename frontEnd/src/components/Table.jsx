@@ -24,7 +24,7 @@ const Table = ({ columns, data = [], title = "Table", showtitle = false }) => {
       <div className="w-full p-3 overflow-hidden">
         <div className="overflow-x-auto w-full">
           <table className="w-full h-full table-auto border border-collapse mb-4">
-            <thead className="bg-secondary1/20 text-gray-700 uppercase text-xs font-semibold whitespace-nowrap">
+            <thead className="bg-secondary1/20 text-gray-700  border-b border-primary uppercase text-xs font-semibold whitespace-nowrap">
               <tr>
                 <th className="px-4 py-3 text-left">Sr No</th>
                 {columns?.map((col, idx) => (
@@ -52,7 +52,7 @@ const Table = ({ columns, data = [], title = "Table", showtitle = false }) => {
                 currentData.map((row, idx) => (
                   <tr
                     key={row.id || idx}
-                    className="hover:bg-gray-50 text-left"
+                    className="hover:bg-gray-50 text-left whitespace-nowrap"
                   >
                     <td className="px-4 py-2">{startIdx + idx + 1}</td>
                     {columns.map((col, idx2) => (

@@ -38,22 +38,35 @@ const ProfilePage = () => {
       const formattedResponse = JSON.parse(storedDetails);
 
       // Call APIs from provider
-      getUserAPI(formattedResponse?.id).then((res) => setUser(res));
-      getCompanyAPI(formattedResponse?.id).then((res) => setCompany(res));
+      Promise.all([
+        getUserAPI(formattedResponse?.id),
+        getCompanyAPI(formattedResponse?.id),
+      ])
+        .then(([userRes, companyRes]) => {
+          setUser(userRes);
+          setCompany(companyRes);
+          setLoading(false);
+        })
+        .catch((error) => {
+          console.error("Error loading profile data:", error);
+          setLoading(false);
+        });
+    } else {
+      setLoading(false);
     }
   }, []);
 
   // Extract metadata safely
   let metadata = {};
   try {
-    metadata = company?.meta_data ? JSON.parse(company.meta_data) : {};
+    metadata = company?.metadata ? JSON.parse(company.metadata) : {};
   } catch (e) {
-    console.error("Invalid meta_data JSON", e);
+    console.error("Invalid metadata JSON", e);
   }
 
   // Use initials if no profile image
-  const initials = user?.name
-    ? user.name
+  const initials = user?.full_name
+    ? user.full_name
         .split(" ")
         .map((n) => n[0])
         .join("")
@@ -78,8 +91,8 @@ const ProfilePage = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 flex justify-center items-center">
-        <div className="bg-white rounded-2xl shadow-xl p-8 max-w-md">
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-green-50 flex justify-center items-center">
+        <div className="bg-white rounded-2xl shadow-xl p-16 max-w-md">
           <div className="animate-pulse space-y-4">
             <div className="w-20 h-20 bg-gray-200 rounded-full mx-auto"></div>
             <div className="h-4 bg-gray-200 rounded w-3/4 mx-auto"></div>
@@ -92,12 +105,12 @@ const ProfilePage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 p-4 md:p-6">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-green-50 to-indigo-100 p-4 md:p-6">
       <div className="max-w-5xl mx-auto">
         {/* Main Profile Card */}
         <div className="bg-white rounded-3xl shadow-2xl overflow-hidden border border-gray-100">
           {/* Hero Section */}
-          <div className="relative bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-700 px-8 py-12">
+          <div className="relative bg-gradient-to-r from-green-600 via-teal-600 to-indigo-700 px-8 py-12">
             <div className="absolute inset-0 bg-black opacity-10"></div>
             <div className="relative z-10 flex flex-col md:flex-row items-center gap-8">
               {/* Profile Avatar */}
@@ -111,7 +124,7 @@ const ProfilePage = () => {
               {/* User Details */}
               <div className="text-center md:text-left text-white flex-1">
                 <h1 className="text-4xl md:text-5xl font-bold mb-2 tracking-tight">
-                  {user?.name || "User Name"}
+                  {user?.full_name || "User Name"}
                 </h1>
                 <div className="flex items-center justify-center md:justify-start gap-2 mb-4">
                   <User className="w-5 h-5" />
@@ -147,9 +160,9 @@ const ProfilePage = () => {
           {/* Content Grid */}
           <div className="p-8 grid grid-cols-1 lg:grid-cols-2 gap-8">
             {/* User Information Card */}
-            <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl p-6 border border-blue-100 hover:shadow-lg transition-shadow duration-300">
+            <div className="bg-gradient-to-br from-green-50 to-indigo-50 rounded-2xl p-6 border border-green-100 hover:shadow-lg transition-shadow duration-300">
               <div className="flex items-center gap-3 mb-6">
-                <div className="p-3 bg-blue-500 rounded-xl">
+                <div className="p-3 bg-green-500 rounded-xl">
                   <User className="w-6 h-6 text-white" />
                 </div>
                 <h2 className="text-2xl font-bold text-gray-800">
@@ -159,13 +172,13 @@ const ProfilePage = () => {
 
               <div className="space-y-4">
                 <div className="flex items-center gap-3 p-4 bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow">
-                  <Mail className="w-5 h-5 text-blue-500" />
+                  <Mail className="w-5 h-5 text-green-500" />
                   <div className="flex-1">
                     <p className="text-sm font-medium text-gray-500">
                       Email Address
                     </p>
                     <p className="text-gray-800 font-medium">
-                      {user?.email || "Not provided"}
+                      {user?.email_id || "Not provided"}
                     </p>
                   </div>
                   <button
@@ -181,7 +194,7 @@ const ProfilePage = () => {
                 </div>
 
                 <div className="flex items-center gap-3 p-4 bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow">
-                  <Wallet className="w-5 h-5 text-blue-500" />
+                  <Wallet className="w-5 h-5 text-green-500" />
                   <div className="flex-1">
                     <p className="text-sm font-medium text-gray-500">
                       Wallet Address
@@ -207,9 +220,9 @@ const ProfilePage = () => {
             </div>
 
             {/* Company Information Card */}
-            <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-2xl p-6 border border-purple-100 hover:shadow-lg transition-shadow duration-300">
+            <div className="bg-gradient-to-br from-teal-50 to-pink-50 rounded-2xl p-6 border border-teal-100 hover:shadow-lg transition-shadow duration-300">
               <div className="flex items-center gap-3 mb-6">
-                <div className="p-3 bg-purple-500 rounded-xl">
+                <div className="p-3 bg-teal-500 rounded-xl">
                   <Building2 className="w-6 h-6 text-white" />
                 </div>
                 <h2 className="text-2xl font-bold text-gray-800">
