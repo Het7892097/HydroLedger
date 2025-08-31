@@ -47,7 +47,12 @@ const HydrogenListingFormModal = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await getPendingTransactionsAPI();
+        const UserDetails = localStorage.getItem("UserProfileDetails");
+        let formattedData = JSON.parse(UserDetails);
+
+        const response = await getPendingTransactionsAPI(
+          formattedData?.wallet_address
+        );
 
         // Transform rows
         const formatted = response.map((tx) => {
